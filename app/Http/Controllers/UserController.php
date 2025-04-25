@@ -3,13 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Post;
 use Illuminate\View\View;
 
 class UserController extends Controller
 {
     public function index(): View
     {
-        $users = User::paginate();
+        // $users = User::with('lastPost')->get();
+
+        $users = User::addSelect(['lastPost' => Post::select('created_at')
+            ->whereColumn('user_id', 'users.id')
+            ->latest()
+            ->take(1),
+        ])->get();
 
         return view('users.index', compact('users'));
     }
